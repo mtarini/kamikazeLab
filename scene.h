@@ -33,19 +33,18 @@ struct Ship: public PhysObject{
 	void renderPlaceHolder() const;
 
 	void setMaxVelAndAcc( float maxVel, float acc );
-
 	std::vector< Bullet > bullets;
-
 	float timeBeforeFiringAgain;
-
 	void spawnNewBullet();
-
 
 	Bullet& findUnusedBullet();
 	void fillBullet(Bullet& b) const;
 
 	void reset();
-	void die();\
+	void die();
+
+	void setStatsAsFighter(); //
+	void setStatsAsTank();
 };
 
 struct Scene{
@@ -56,6 +55,7 @@ struct Scene{
 	vec3 randomPosInArena() const;
 	void initAsNewGame();
 	void render();
+
 	void doPhysStep();
 
 	bool isInside( vec3 p ) const;
@@ -63,7 +63,8 @@ struct Scene{
 
 private:
 	void checkAllCollisions();
-
+	void renderFloor() const;
+	void cameraOnTwoObjects( const PhysObject& a, const PhysObject& b );
 };
 
 extern Scene scene; // a poor man's singleton

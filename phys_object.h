@@ -10,6 +10,8 @@ public:
 	Collider coll;
 
 	vec3 vel;
+	quat angVel;
+
 	float mass;
 
 	void renderPlaceHolder() const;
@@ -19,6 +21,7 @@ public:
 
 	void reset(){
 		vel = vec3(0,0,0);
+		angVel = quat(1,0,0,0);
 		t.setIde();
 		drag = 0.03f;
 	}

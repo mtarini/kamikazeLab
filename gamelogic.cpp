@@ -10,6 +10,10 @@ void Ship::setMaxVelAndAcc(float maxSpeed, float acc){
 	drag = acc / maxSpeed;
 }
 
+float randInZeroToOne(){
+	return ((rand()%1001))/1000.0f;
+}
+
 float randInMinusOneToOne(){
 	return ((rand()%2001)-1000)/1000.0f;
 }
@@ -58,6 +62,7 @@ void Ship::fillBullet(Bullet &b) const {
 
 	b.timeToLive = stats.fireRange / stats.fireSpeed;
 	b.vel = t.forward() * stats.fireSpeed ;
+	b.angVel = quat(1,0,0,0);
 
 	b.mass = 0.1f;
 	b.coll.radius = 0.03f;
@@ -80,7 +85,7 @@ vec3 Scene::pacmanWarp( vec3 p) const{
 }
 
 void Scene::initAsNewGame(){
-	arenaRadius = 20;
+	arenaRadius = 60;
 	ships.resize(2);
 
 	for (Ship &s: ships) {
@@ -90,14 +95,25 @@ void Scene::initAsNewGame(){
 		s.coll.radius = 0.8f;
 		s.mass = 10.0; // KG!
 
-		// set stats
-		// TODO: differentiate, and read an external stats file maybe
-		s.stats.turnRate = 40; // rpm - rotation per minutes
-		s.setMaxVelAndAcc( 30.0f, 40.0f ); // m/s, m/s^2
-		s.stats.fireRate = 2;  // shots per sec
-		s.stats.fireRange = 15.0; // m
-		s.stats.fireSpeed = 30.0; // m/s
 	}
-
+	ships[0].setStatsAsFighter();
+	ships[1].setStatsAsTank();
 
 }
+
+void Ship::setStatsAsFighter(){
+	stats.turnRate = 1040; // deg / s^2
+	setMaxVelAndAcc( 30.0f, 60.0f ); // m/s, m/s^2
+	stats.fireRate = 8;  // shots per sec
+	stats.fireRange = 8.0; // m
+	stats.fireSpeed = 30.0; // m/s
+}
+
+void Ship::setStatsAsTank(){
+	stats.turnRate = 800; // deg / s^2
+	setMaxVelAndAcc( 50.0f, 10.0f ); // m/s, m/s^2
+	stats.fireRate = 2.0;  // shots per sec
+	stats.fireRange = 50.0; // m
+	stats.fireSpeed = 20.0; // m/s
+}
+

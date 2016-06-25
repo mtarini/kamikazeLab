@@ -11,7 +11,11 @@ void PhysObject::doPhysStep(){
 	vel += acc * dt;*/
 
 	t.pos += vel * dt;
+	t.ori *= glm::slerp( quat(1,0,0,0) , angVel ,  dt );
 
+	// damping of angular velocity
+	angVel = glm::slerp( quat(1,0,0,0) , angVel , 0.80f );
+	// damping of linear velocity
 	vel *= 1.0-drag*dt; // an approximation : // (1-D)^dt = (1-D*dt)
 
 	//vel *= pow(1.0-drag,double(dt));
@@ -66,16 +70,15 @@ void Bullet::doPhysStep(){
 void Ship::doPhysStep(){
 
 	/* PARTE VOLONTARIA: */
-	float rpm = 0;
 	if (controller.status[ ShipController::LEFT ]){
-		rpm += stats.turnRate;
+		angVel *= glm::angleAxis( glm::radians(+stats.turnRate)*dt,vec3(0,0,1));
 	}
 	if (controller.status[ ShipController::RIGHT ]){
-		rpm -= stats.turnRate;
+		angVel *= glm::angleAxis( glm::radians(-stats.turnRate)*dt,vec3(0,0,1));
 	}
-
-	const float turnAngle = pi<float>()*2;
-	t.ori *= angleAxis( rpm * dt/60.0f *turnAngle , vec3(0,0,1) );
+	if (controller.status[ ShipController::GO ]){
+		vel += t.forward() * (stats.accRate * dt);
+	}
 
 	if (timeBeforeFiringAgain<=0) {
 		if (controller.status[ ShipController::FIRE ]) {
@@ -84,9 +87,7 @@ void Ship::doPhysStep(){
 		}
 	} else timeBeforeFiringAgain -= dt;
 
-	if (controller.status[ ShipController::GO ]){
-		vel += t.forward() * (stats.accRate * dt);
-	}
+
 
 	/* PARTE PASSIVA */
 	PhysObject::doPhysStep();

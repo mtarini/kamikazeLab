@@ -17,6 +17,7 @@ AiMind aiP0;
 AiMind aiP1;
 
 void rendering();
+void initRendering();
 
 #define SDL_TIMEREVENT SDL_USEREVENT
 
@@ -95,6 +96,8 @@ int main(int , char **)
 		return 1;
 	}
 
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
+
 	win = SDL_CreateWindow(
 		"Kamikaze!!!",
 		100, 100, 500, 500,
@@ -108,6 +111,7 @@ int main(int , char **)
 	}
 
 	glcontext = SDL_GL_CreateContext(win);
+	initRendering();
 
 	SDL_AddTimer( 1000/FPS, pushTimerEvent, NULL );
 

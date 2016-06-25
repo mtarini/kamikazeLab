@@ -7,25 +7,25 @@
 using namespace glm;
 
 struct Transform{
-    vec3 pos;
-    quat ori;
-    float scale;
+	vec3 pos;
+	quat ori;
+	float scale;
 
-    void setIde(){
-        pos = vec3(0,0,0);
-        ori = quat(1,0,0,0);
-        scale = 1;
-    }
+	void setIde(){
+		pos = vec3(0,0,0);
+		ori = quat(1,0,0,0);
+		scale = 1;
+	}
 
-    vec3 forward() const {
-        //return
-        // quat::rotate(ori, vec3(0,0,1) );
-        quat tmp = (ori * quat(0, 0,1,0) * conjugate(ori));
-        return vec3( tmp.x, tmp.y, tmp.z );
+	vec3 forward() const {
+		//return
+		// quat::rotate(ori, vec3(0,0,1) );
+		quat tmp = (ori * quat(0, 0,1,0) * conjugate(ori));
+		return vec3( tmp.x, tmp.y, tmp.z );
 
-    }
+	}
 
-    void setModelMatrix() const;
+	void setModelMatrix() const;
 
 };
 

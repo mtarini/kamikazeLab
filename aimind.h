@@ -9,9 +9,12 @@ public:
 	const Ship* me = NULL;
 	const Ship* target = NULL;
 
+	float alertness = 0.75f; // 0 = sleeping  1 = terminator
+	float happyTrigger = 1.3f; // if bullet will fly within this dist from target: FIRE!
+
 	void rethink( ShipController& output );
 
-	AiMind():me(NULL),target(NULL) { me = target = NULL;}
+	AiMind(){ }
 
 };
 
