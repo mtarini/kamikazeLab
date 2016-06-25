@@ -4,6 +4,7 @@
 
 #include"mesh.h"
 #include"scene.h"
+#include"texture.h"
 
 void preloadAllAssets(){
 
@@ -18,6 +19,9 @@ void preloadAllAssets(){
 	comp.t.setIde();
 	comp.t.scale = 0.05f;
 	comp.t.ori = quat( -sqrt(2.0)/2.0,0,0,sqrt(2.0)/2.0 );
+
+	CpuTexture tmpText;
+	tmpText.import("C:/corsi/game_engines_2016/kamikazeLab2016/assets/dark_fighter_6_color.pbm");
 
 	scene.ships[0].meshComponent = comp;
 	scene.ships[1].meshComponent = comp;
@@ -122,3 +126,22 @@ bool CpuMesh::import(const std::string& filename){
 
 }
 
+bool CpuTexture::import(std::string filename){
+	std::ifstream infile(filename);
+	if (!infile.is_open()) return false;
+
+	int depth;
+	std::string token;
+	infile >> token >> sizeX >> sizeY >> depth;
+	// TODO: some checking please!
+
+	data.reserve( sizeX*sizeY );
+
+	for (int i=0; i<sizeX*sizeY; i++) {
+		unsigned char r,g,b;
+		infile >> r >> g >> b;
+		data.push_back( Texel({r,g,b,255}) );
+	}
+
+	return true;
+}
