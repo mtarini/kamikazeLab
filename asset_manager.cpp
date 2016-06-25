@@ -1,28 +1,39 @@
+/* asset_manager.cpp :
+ * all methods of all classes and all global functions which deal with managing assets:
+ * Importing, procedural construction, maybe a bit of pre-processing
+ */
+
 #include <fstream>
 #include <sstream>
 #include <string>
 
 #include"mesh.h"
-#include"scene.h"
+#include"custom_classes.h"
 #include"texture.h"
 
 void preloadAllAssets(){
 
-	// load meshes
-	//aMesh.buildTorus(10,30,5.0,15.0);
+	// quick hack: change me!
+	std::string assetPath = "C:/corsi/game_engines_2016/kamikazeLab2016/assets/";
+
 	CpuMesh tmp;
-	tmp.import("C:/corsi/game_engines_2016/kamikazeLab2016/assets/dark_fighter_6.obj");
-
-	MeshComponent comp;
-
-	comp.mesh = tmp.uploadToGPU();
-	comp.t.setIde();
-	comp.t.scale = 0.05f;
-	comp.t.ori = quat( -sqrt(2.0)/2.0,0,0,sqrt(2.0)/2.0 );
+	tmp.import(assetPath + "dark_fighter_6.obj");
+	//tmp.buildTorus(10,30,5.0,15.0); // or, procedural creation
 
 	CpuTexture tmpText;
-	tmpText.import("C:/corsi/game_engines_2016/kamikazeLab2016/assets/dark_fighter_6_color.pbm");
+	tmpText.import(assetPath + "dark_fighter_6_color.pbm");
+	//tmpText.createRandom(256);
+	GpuTexture gpuText = tmpText.uploadToGPU();
 
+	MeshComponent comp;
+	comp.mesh = tmp.uploadToGPU();
+	comp.texture = gpuText;
+	// let set a tranform manually to adapt the asset to our needs
+	comp.t.setIde();
+	comp.t.scale = 0.05f;
+	comp.t.ori = quat( -sqrt(2.0f)/2.0f,0,0,sqrt(2.0f)/2.0f );
+
+	// TODO: differntiate models / textures
 	scene.ships[0].meshComponent = comp;
 	scene.ships[1].meshComponent = comp;
 
@@ -91,7 +102,7 @@ bool CpuMesh::import(const std::string& filename){
 			float x,y;
 			iss >> x >> y;
 			Vertex nv;
-			nv.uv = vec2(x,y);
+			nv.uv = vec2(x,1.0f-y); // NB: flipping the y, different conventions about UV space
 			verts.push_back( nv );
 			// v.pos e v.norm: ci penso dopo, quando leggero' le facce
 		} else if (code=="f") {
@@ -127,7 +138,7 @@ bool CpuMesh::import(const std::string& filename){
 }
 
 bool CpuTexture::import(std::string filename){
-	std::ifstream infile(filename);
+	std::ifstream infile(filename,std::ios::binary);
 	if (!infile.is_open()) return false;
 
 	int depth;
@@ -138,10 +149,25 @@ bool CpuTexture::import(std::string filename){
 	data.reserve( sizeX*sizeY );
 
 	for (int i=0; i<sizeX*sizeY; i++) {
-		unsigned char r,g,b;
-		infile >> r >> g >> b;
-		data.push_back( Texel({r,g,b,255}) );
+		char rgb[3];
+		infile.read(rgb, 3 );
+		Texel t;
+		t.r = rgb[0];
+		t.g = rgb[1];
+		t.b = rgb[2];
+		data.push_back( t );
 	}
 
 	return true;
+}
+
+void CpuTexture::createRandom(int size){
+	sizeX = sizeY = size;
+	data.resize(sizeX * sizeY);
+	for (Texel &t : data) {
+		t.r = rand()%256;
+		t.g = rand()%256;
+		t.b = rand()%256;
+		t.a = 255;
+	}
 }

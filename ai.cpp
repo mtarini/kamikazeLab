@@ -1,7 +1,10 @@
+/* ai.cpp
+ * everything about the NPC behaviour (AI).
+ */
 
 #include "aimind.h"
 
-float randInZeroToOne();
+float randInZeroToOne(); // small helper function, defined somewhere
 
 // time at which the two objects a and b will be at their closest
 float minDistTime( const PhysObject& a, const PhysObject& b ){

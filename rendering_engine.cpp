@@ -1,19 +1,24 @@
-/* rendering engine!!!
+/* rendering engine
  *
- * Il nome e' un po' altisonante, ma
- * tutte le funzioni inerenti al rendering
- * la piazziamo qui
+ * all methods of all classes, and all global functions, which deal with graphics:
+ * rendering, uploading stuff to GPU, etc
+ *
  */
 
 #include<Windows.h>
+
+// We use OpenGL (with glew) but the rest of the code is fairly independent from this.
+// It should be trivial to switch to, e.g., directX
+
 #include<GL/glew.h>
 #include<GL/GL.h>
 #include<glm/mat4x4.hpp>
 
 #include"transform.h"
 #include"phys_object.h"
-#include"scene.h"
+#include"custom_classes.h"
 #include"mesh.h"
+#include"texture.h"
 
 GpuMesh aMesh;
 
@@ -33,9 +38,15 @@ GpuMesh CpuMesh::uploadToGPU(){
 	);
 
 	glEnableClientState(GL_VERTEX_ARRAY);
-
-	glVertexPointer(3,GL_FLOAT,sizeof(Vertex),
+	glVertexPointer(3,GL_FLOAT,
+					sizeof(Vertex),
 					(const void*)offsetof(Vertex,pos) );
+
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glTexCoordPointer(2,GL_FLOAT,
+					  sizeof(Vertex),
+					  (const void*)offsetof(Vertex,uv)  );
+
 
 	glGenBuffers(1,&res.connBufferId);
 	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, res.connBufferId );
@@ -53,11 +64,52 @@ GpuMesh CpuMesh::uploadToGPU(){
 	return res;
 }
 
+void GpuTexture::bind() const{
+	glBindTexture( GL_TEXTURE_2D, textureId );
+
+	// dear FIXED FUNCTIONALITY shaders, please access my texture (per fragment)
+	glEnable(GL_TEXTURE_2D);
+}
+
+GpuTexture CpuTexture::uploadToGPU() const{
+
+	GpuTexture res;
+	glGenTextures(1, &res.textureId );
+
+	glBindTexture( GL_TEXTURE_2D, res.textureId );
+
+	glTexImage2D(
+		GL_TEXTURE_2D,
+		0, // higest res mipmap level
+		GL_RGB,
+		sizeX, sizeY,
+		0,
+		GL_RGBA, // becasue our class Texel is made like this
+		GL_UNSIGNED_BYTE, // idem
+		&(data[0])
+	);
+
+	// let's determine how this texture will be accessed (by the fragment shader)!
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+
+	return res;
+}
+
 void GpuMesh::render() const{
+
+	// "caro opengl, ti ricodi di quel buffer (che mi hai detto di chiamare "buffer N. geomBufferId?"
 	glBindBuffer( GL_ARRAY_BUFFER, geomBufferId );
+	// "ebbene, li ci troverai le (posizioni dei) VERTICI (nel modo che ti ho detto prima)"
 	glEnableClientState(GL_VERTEX_ARRAY);
+	// "e li ci troverai anche le (posiizoni delle) COORD TEXGURE (sempre nel modo di cui ti dissi)"
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
 	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, connBufferId );
 	glEnableClientState(GL_INDEX_ARRAY);
+
 	glDrawElements(GL_TRIANGLES, nElements, GL_UNSIGNED_INT, 0 );
 }
 
@@ -100,11 +152,16 @@ void Transform::setModelMatrix() const{
 
 void PhysObject::render() const{
 	glColor3f(1,1,1);
+
+	// set the local transform
 	glPushMatrix();
 	t.setModelMatrix();
 	meshComponent.t.setModelMatrix();
+	meshComponent.texture.bind();
 	meshComponent.mesh.render();
+
 	glPopMatrix();
+	glDisable(GL_TEXTURE_2D);
 }
 
 void drawAStupidTriangle();
@@ -187,9 +244,9 @@ void Scene::render(){
 
 void Scene::renderFloor() const{
 	glPushMatrix();
-	glTranslatef(0,0,+1.0);
+	glTranslatef(0,0,2);
 	glBegin(GL_QUADS);
-	glColor3f(0.75,0,0);
+	glColor3f(0.3f,0.2f,0);
 	for (float x=-arenaRadius; x<arenaRadius; x+=4)
 	for (float y=-arenaRadius; y<arenaRadius; y+=4) {
 		glVertex2d(x  ,y);
@@ -214,7 +271,7 @@ void drawAStupidTriangle(){
 void rendering(){
 	glViewport(0,0,500,500); // TODO: use actual windows size
 
-	glClearColor( 1.0, 0, 0.0, 1.0 );
+	glClearColor( 0.2f, 0.15f, 0.0f, 1.0f );
 
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 

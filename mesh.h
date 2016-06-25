@@ -1,12 +1,27 @@
 #ifndef MESH_H
 #define MESH_H
 
+/* Mesh asset: a indexed, triangular Mesh
+ *
+ * Used for rendering only (graphic coating).
+ *
+ * Like many assets, two classes:
+ * - CpuMesh ("stored in system ram")
+ * - GpuMesh ("stored in graphic card RAM")
+ *
+ * MeshComponent:
+ * - a mesh + a texture (will be: a material) + a transform
+ *
+ */
+
+
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
 #include <vector>
 using namespace glm;
 
 #include "transform.h"
+#include "texture.h"
 
 struct Vertex{
 	vec3 pos;
@@ -53,7 +68,13 @@ private:
 };
 
 struct MeshComponent{
-	Transform t;
+	Transform t; /* local trasform, for the looks only
+				  * useful for: convert unity of measures between assets and game,
+				  * add small "graphic only" animations,
+				  * fix axis orientations between assets and game
+				  */
+
+	GpuTexture texture; // TODO: meglio un MATERIAL (che contiene una GpuTexture)
 	GpuMesh mesh;
 	// textures, materials...
 };

@@ -1,5 +1,9 @@
+/* game_logic.cpp
+ * all methods with are specific of this game.
+ * (in Unity, they would probaby be custom scripts)
+ */
 
-#include "scene.h"
+#include "custom_classes.h"
 
 Scene scene;
 
@@ -61,7 +65,7 @@ void Ship::fillBullet(Bullet &b) const {
 	b.t.pos = t.pos; // TODO: put where the gun hole is (in Space shape)
 
 	b.timeToLive = stats.fireRange / stats.fireSpeed;
-	b.vel = t.forward() * stats.fireSpeed ;
+	b.vel = t.forward() * stats.fireSpeed + 0.3f*vel;
 	b.angVel = quat(1,0,0,0);
 
 	b.mass = 0.1f;
@@ -101,19 +105,27 @@ void Scene::initAsNewGame(){
 
 }
 
+/* method to define stats */
+
+/* TODO:
+ *  tune stats more.
+ *  make them read from a file!
+ * (a step toward moddability!)
+ */
+
 void Ship::setStatsAsFighter(){
 	stats.turnRate = 1040; // deg / s^2
 	setMaxVelAndAcc( 30.0f, 60.0f ); // m/s, m/s^2
 	stats.fireRate = 8;  // shots per sec
-	stats.fireRange = 8.0; // m
-	stats.fireSpeed = 30.0; // m/s
+	stats.fireRange = 12.0; // m
+	stats.fireSpeed = 35.0; // m/s
 }
 
 void Ship::setStatsAsTank(){
-	stats.turnRate = 800; // deg / s^2
+	stats.turnRate = 730; // deg / s^2
 	setMaxVelAndAcc( 50.0f, 10.0f ); // m/s, m/s^2
-	stats.fireRate = 2.0;  // shots per sec
-	stats.fireRange = 50.0; // m
-	stats.fireSpeed = 20.0; // m/s
+	stats.fireRate = 1.3;  // shots per sec
+	stats.fireRange = 52.0; // m
+	stats.fireSpeed = 22.0; // m/s
 }
 

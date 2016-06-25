@@ -1,12 +1,17 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
+/* class Texture:
+ *
+ * an asset for a texure map.
+ *
+ */
 #include <string>
 #include <vector>
 
 struct GpuTexture{
 	unsigned int textureId = 666;
-	void bind();
+	void bind() const;
 };
 
 typedef unsigned char byte;
@@ -20,7 +25,10 @@ struct CpuTexture{
 
 	int sizeX, sizeY;
 	std::vector<Texel> data;
-	GpuTexture loadOnGPU();
+	GpuTexture uploadToGPU() const;
+
+	// procedura creation of textures!
+	void createRandom(int size);
 
 	// TODO: un po' di image processing, maybe?
 	void sharpen();

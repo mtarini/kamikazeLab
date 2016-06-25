@@ -5,6 +5,18 @@
 #include "collider.h"
 #include "mesh.h"
 
+/* class PhysObject:
+ *  a physical entithy if our virtual world.
+ *  It has
+ *    - a transform ("where it is"),
+ *    - physical properties, like mass, speed, angular speed...
+ *    - more components, including:
+ *      * a physical estension (a Collider)
+ *      * a way it looks (a MeshComponent)
+ *
+ * TODO: make a hierarchical structure, i.e. make it a node of a SceneGraph.
+ */
+
 class PhysObject{
 public:
 	Transform t;
@@ -29,6 +41,7 @@ public:
 		t.setIde();
 		drag = 0.03f;
 	}
+
 };
 
 bool collides(const PhysObject &a ,

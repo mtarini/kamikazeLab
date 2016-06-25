@@ -1,15 +1,20 @@
 #ifndef TRANSFORM_H
 #define TRANSFORM_H
 
+/* Tranforms.h -
+ * a basic class for trasnform
+ */
+
 #include <glm/vec3.hpp>
 #include <glm/gtc/quaternion.hpp>
 
 using namespace glm;
 
 struct Transform{
-	vec3 pos;
-	quat ori;
-	float scale;
+	vec3 pos;  // aka "translation"
+	quat ori;  // aka "rotation"
+	float scale; // note: Unity uses anisotropic scaling instead (a vec3 for scale)
+				 // (which makes transofrms not closed to combination)
 
 	void setIde(){
 		pos = vec3(0,0,0);
@@ -26,6 +31,10 @@ struct Transform{
 	}
 
 	void setModelMatrix() const;
+
+	/*TODO: very good exercises:
+	 * methods for:
+	 * cumulate, invert, transform points/vectors, interpolate (mix) */
 
 };
 

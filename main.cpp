@@ -1,6 +1,19 @@
+/* main.cpp
+ * the "core" of the game engine.
+ *
+ * All parts which deals with operative system (opening a window,
+ * capturing mouses, keyboards), events loop, timers...
+ *
+ */
+
 #include <iostream>
+
+/* we use SDL but note the rest of the code is SDL free!!!
+ * E.g. it should be easy to change this with, e.g. freeGlut, glfw, etc
+ */
+
 #include <SDL.h>
-#include "scene.h"
+#include "custom_classes.h"
 #include "aimind.h"
 
 using namespace std;
@@ -9,7 +22,7 @@ const int FPS = 30;
 SDL_Window *win = NULL;
 SDL_GLContext glcontext;
 
-int N_PLAYERS = 2; // 0, 1 or 2
+int N_PLAYERS = 1; // 0, 1 or 2
 
 bool quitGame = false;
 
