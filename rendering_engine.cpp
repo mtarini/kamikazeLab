@@ -184,6 +184,11 @@ void Ship::render() const{
 	glEnd();
 }
 
+void PhysObject::setCameraInside(){
+
+	t.inverse().setModelMatrix();
+}
+
 void Ship::renderPlaceHolder() const{
 
 	glPushMatrix();
@@ -218,14 +223,54 @@ void Scene::cameraOnTwoObjects( const PhysObject& a, const PhysObject& b ){
 
 }
 
+// this functions is an exact copy of gluPerspective (of GLU library)
+// added here to avoid a dependency.
+static void myGluPerspective(GLdouble fovx, GLdouble aspect, GLdouble zNear, GLdouble zFar)
+{
+	GLdouble xMin, xMax, yMin, yMax;
+
+	xMax = zNear * tan(fovx * 3.1415926535 / 360.0);
+	xMin = -xMax;
+
+	yMin = xMin / aspect;
+	yMax = xMax / aspect;
+
+	GLdouble m[16] = {
+		(2.0 * zNear) / (xMax - xMin), 0, 0, 0,
+
+		0, (2.0 * zNear) / (yMax - yMin), 0, 0,
+
+		(xMax + xMin) / (xMax - xMin),
+		(yMax + yMin) / (yMax - yMin),
+		-(zFar + zNear) / (zFar - zNear),
+		-1,
+
+		0, 0, -(2.0 * zFar * zNear) / (zFar - zNear), 0
+	};
+
+	glMultMatrixd(m);
+}
+
+
 void Scene::render(){
 
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	myGluPerspective(60,1.0,0.2,100.0);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glTranslatef(0,0,-2); // take a step behind
+
+	if (0) {
+		// 3rd person camera
+		glTranslatef(0,-2,-4);
+		glRotatef(-75,1,0,0);
+		ships[0].setCameraInside();
+	} else {
+		// bird-eye camera
+		cameraOnTwoObjects(ships[0],ships[1]);
+	}
 	glPushMatrix();
-
-	// global view:
-	//glScalef( 1.0f/arenaRadius, 1.0f/arenaRadius, 1.0f/arenaRadius);
-
-	cameraOnTwoObjects(ships[0],ships[1]);
 
 	//aMesh.render();
 	glPushMatrix();
@@ -244,7 +289,7 @@ void Scene::render(){
 
 void Scene::renderFloor() const{
 	glPushMatrix();
-	glTranslatef(0,0,2);
+	glTranslatef(0,0,-2);
 	glBegin(GL_QUADS);
 	glColor3f(0.3f,0.2f,0);
 	for (float x=-arenaRadius; x<arenaRadius; x+=4)

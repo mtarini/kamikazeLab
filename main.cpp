@@ -136,12 +136,15 @@ int main(int , char **)
 	else {
 		aiP0.me = &(scene.ships[0]);
 		aiP0.target = &(scene.ships[1]);
+		aiP0.setHumanLike();
 	}
 
 	if (N_PLAYERS>1) scene.ships[1].controller.useWASD();
 	else {
 		aiP1.me = &(scene.ships[1]);
 		aiP1.target = &(scene.ships[0]);
+		//aiP1.setTerminator();
+		aiP1.setHumanLike();
 	}
 
 	/* ciclo degli eventi */

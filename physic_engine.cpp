@@ -95,10 +95,10 @@ void Ship::doPhysStep(){
 	// graphics: make it do a roll according to angular velocity
 	float rollAngle = glm::angle(angVel) *
 			sign(dot(glm::axis(angVel),vec3(0,0,1)))
-			* 0.27f
-			* (length(vel)/50.0f+1.0f);
+			* 0.13f
+			* (length(vel)*0.055f+1.0f);
 	meshComponent.t.ori =
-			glm::angleAxis( rollAngle, vec3(0,1,0) ) *
+			glm::angleAxis( rollAngle, vec3(0,-1,0) ) *
 			quat( -sqrt(2.0f)/2.0f,0,0,sqrt(2.0f)/2 )  ;
 
 	/* PARTE PASSIVA */

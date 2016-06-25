@@ -103,6 +103,8 @@ void Scene::initAsNewGame(){
 	ships[0].setStatsAsFighter();
 	ships[1].setStatsAsTank();
 
+
+
 }
 
 /* method to define stats */

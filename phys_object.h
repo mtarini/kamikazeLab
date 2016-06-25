@@ -42,6 +42,7 @@ public:
 		drag = 0.03f;
 	}
 
+	void setCameraInside();
 };
 
 bool collides(const PhysObject &a ,

@@ -25,6 +25,16 @@ public:
 
 	void rethink( ShipController& output );
 
+	void setTerminator(){
+		alertness = 1.0;
+		happyTrigger = 0.0; // only shoot if you really think you'll hit
+	}
+
+	void setHumanLike(){
+		alertness = 0.35f; // only react 35% of frames
+		happyTrigger = 1.5; // happy to shoot even if not the perfect shot
+	}
+
 	AiMind(){ }
 
 };

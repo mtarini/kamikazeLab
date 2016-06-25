@@ -36,6 +36,14 @@ struct Transform{
 	 * methods for:
 	 * cumulate, invert, transform points/vectors, interpolate (mix) */
 
+	Transform inverse() const {
+		Transform res;
+		res.scale = 1.0f/scale;
+		res.ori = glm::inverse( ori );
+		res.pos = res.ori * -pos;
+		return res;
+	}
+
 };
 
 #endif // TRANSFORM_H
