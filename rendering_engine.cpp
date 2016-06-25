@@ -99,6 +99,7 @@ void Transform::setModelMatrix() const{
 }
 
 void PhysObject::render() const{
+	glColor3f(1,1,1);
 	glPushMatrix();
 	t.setModelMatrix();
 	meshComponent.t.setModelMatrix();
@@ -185,6 +186,8 @@ void Scene::render(){
 }
 
 void Scene::renderFloor() const{
+	glPushMatrix();
+	glTranslatef(0,0,+1.0);
 	glBegin(GL_QUADS);
 	glColor3f(0.75,0,0);
 	for (float x=-arenaRadius; x<arenaRadius; x+=4)
@@ -195,6 +198,7 @@ void Scene::renderFloor() const{
 		glVertex2d(x  ,y+2);
 	}
 	glEnd();
+	glPopMatrix();
 }
 
 void drawAStupidTriangle(){

@@ -87,7 +87,14 @@ void Ship::doPhysStep(){
 		}
 	} else timeBeforeFiringAgain -= dt;
 
-
+	// graphics: make it do a roll according to angular velocity
+	float rollAngle = glm::angle(angVel) *
+			sign(dot(glm::axis(angVel),vec3(0,0,1)))
+			* 0.3f
+			;
+	meshComponent.t.ori =
+			glm::angleAxis( rollAngle, vec3(0,1,0) ) *
+			quat( -sqrt(2.0)/2.0,0,0,sqrt(2.0)/2.0 )  ;
 
 	/* PARTE PASSIVA */
 	PhysObject::doPhysStep();

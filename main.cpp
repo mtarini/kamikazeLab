@@ -9,7 +9,7 @@ const int FPS = 30;
 SDL_Window *win = NULL;
 SDL_GLContext glcontext;
 
-int N_PLAYERS = 1; // 0, 1 or 2
+int N_PLAYERS = 2; // 0, 1 or 2
 
 bool quitGame = false;
 
@@ -114,11 +114,10 @@ int main(int , char **)
 	glcontext = SDL_GL_CreateContext(win);
 	initRendering();
 
+	scene.initAsNewGame();
 	preloadAllAssets();
 
 	SDL_AddTimer( 1000/FPS, pushTimerEvent, NULL );
-
-	scene.initAsNewGame();
 
 	if (N_PLAYERS>0) scene.ships[0].controller.useArrows();
 	else {

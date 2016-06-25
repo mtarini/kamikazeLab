@@ -16,6 +16,8 @@ void preloadAllAssets(){
 
 	comp.mesh = tmp.uploadToGPU();
 	comp.t.setIde();
+	comp.t.scale = 0.05f;
+	comp.t.ori = quat( -sqrt(2.0)/2.0,0,0,sqrt(2.0)/2.0 );
 
 	scene.ships[0].meshComponent = comp;
 	scene.ships[1].meshComponent = comp;
@@ -76,11 +78,11 @@ bool CpuMesh::import(const std::string& filename){
 		if (code=="v") {
 			float x,y,z;
 			iss >> x >> y >> z;
-			tmpV.push_back( vec3(x,y,z) );
+			tmpV.push_back( vec3(x,z,y) );
 		} else if (code=="vn") {
 			float x,y,z;
 			iss >> x >> y >> z;
-			tmpN.push_back( vec3(x,y,z) );
+			tmpN.push_back( vec3(x,z,y) );
 		} else if (code=="vt") {
 			float x,y;
 			iss >> x >> y;
