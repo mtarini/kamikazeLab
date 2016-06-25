@@ -5,7 +5,8 @@
 #include <glm/vec2.hpp>
 #include <vector>
 using namespace glm;
-class Transform;
+
+#include "transform.h"
 
 struct Vertex{
 	vec3 pos;
@@ -18,13 +19,21 @@ struct Tri{
 	Tri(int _i, int _j, int _k):i(_i),j(_j),k(_k){}
 };
 
-struct Mesh{
+/* (ids of) a mesh structure in GPU ram */
+struct GpuMesh{
+	void render() const;
+	uint geomBufferId = 666; // "name" of GPU buffer for vertices
+	uint connBufferId = 666; // "name" of GPU buffer for triangles
+	int nElements = 0;
+};
+
+/* a mesh structure in CPU ram */
+struct CpuMesh{
 	std::vector< Vertex > verts;
 	std::vector< Tri > tris;
 
 	bool import(const std::string& filename);
-	void render();
-	void renderDeprecated();
+	void renderDeprecated(); // uses immediate mode
 
 	// todo: a bit of geometry processing...
 	void updateNormals();
@@ -35,14 +44,18 @@ struct Mesh{
 	// procedural constructions..
 	void buildTorus(int ni, int nj, float innerRadius, float outerRadius);
 
+	GpuMesh uploadToGPU();
+
 private:
-	void uploadToGPU();
-	void fire();
 
 	void addQuad(int i, int j, int k, int h);
 
-	uint geomBufferId = 666; // "name" of GPU buffer for vertices
-	uint connBufferId = 666; // "name" of GPU buffer for triangles
+};
+
+struct MeshComponent{
+	Transform t;
+	GpuMesh mesh;
+	// textures, materials...
 };
 
 #endif // MESH_H

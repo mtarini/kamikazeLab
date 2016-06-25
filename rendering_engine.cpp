@@ -15,13 +15,15 @@
 #include"scene.h"
 #include"mesh.h"
 
-Mesh aMesh;
+GpuMesh aMesh;
 
-void Mesh::uploadToGPU(){
+GpuMesh CpuMesh::uploadToGPU(){
 
-	if (geomBufferId==666) glGenBuffers(1,&geomBufferId);
+	GpuMesh res;
 
-	glBindBuffer( GL_ARRAY_BUFFER, geomBufferId );
+	glGenBuffers(1, & res.geomBufferId );
+
+	glBindBuffer( GL_ARRAY_BUFFER, res.geomBufferId );
 
 	glBufferData(
 		GL_ARRAY_BUFFER, // a buffer containing vertices
@@ -35,8 +37,8 @@ void Mesh::uploadToGPU(){
 	glVertexPointer(3,GL_FLOAT,sizeof(Vertex),
 					(const void*)offsetof(Vertex,pos) );
 
-	if (connBufferId==666) glGenBuffers(1,&connBufferId);
-	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, connBufferId );
+	glGenBuffers(1,&res.connBufferId);
+	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, res.connBufferId );
 	glEnableClientState(GL_INDEX_ARRAY);
 	glBufferData(
 		GL_ELEMENT_ARRAY_BUFFER, // a buffer containing vertex indices
@@ -44,25 +46,22 @@ void Mesh::uploadToGPU(){
 		&(tris[0]),
 		GL_STATIC_DRAW
 	);
-	glIndexPointer(	GL_INT, 0, 0);
+	//glIndexPointer(	GL_INT, 0, 0);
 
+	res.nElements = tris.size() * 3;
 
+	return res;
 }
 
-void Mesh::fire(){
+void GpuMesh::render() const{
 	glBindBuffer( GL_ARRAY_BUFFER, geomBufferId );
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, connBufferId );
 	glEnableClientState(GL_INDEX_ARRAY);
-	glDrawElements(GL_TRIANGLES, tris.size()*3, GL_UNSIGNED_INT, 0 );
+	glDrawElements(GL_TRIANGLES, nElements, GL_UNSIGNED_INT, 0 );
 }
 
-void Mesh::render(){
-	if (geomBufferId==666) uploadToGPU();
-	fire();
-}
-
-void Mesh::renderDeprecated(){
+void CpuMesh::renderDeprecated(){
 	// using OpenGL 1.0
 	glBegin(GL_TRIANGLES);
 	for (Tri t: tris) {
@@ -99,12 +98,32 @@ void Transform::setModelMatrix() const{
 	glMultMatrixf( & (m[0][0]) );
 }
 
+void PhysObject::render() const{
+	glPushMatrix();
+	t.setModelMatrix();
+	meshComponent.t.setModelMatrix();
+	meshComponent.mesh.render();
+	glPopMatrix();
+}
+
 void drawAStupidTriangle();
 
 void Bullet::renderPlaceHolder() const{
 	// sending the cords in world space! (optimization)
 	if (alive)
 		glVertex3f( t.pos.x , t.pos.y , t.pos.z );
+}
+
+void Ship::render() const{
+	PhysObject::render();
+
+	glPointSize(4.0);
+	glColor3f( 1,1,0 );
+	glBegin(GL_POINTS);
+	for (const Bullet &b: bullets){
+		b.renderPlaceHolder();
+	}
+	glEnd();
 }
 
 void Ship::renderPlaceHolder() const{
@@ -127,7 +146,6 @@ void Ship::renderPlaceHolder() const{
 	}
 	glEnd();
 }
-
 
 void Scene::cameraOnTwoObjects( const PhysObject& a, const PhysObject& b ){
 	vec3 center = ( a.t.pos + b.t.pos )*0.5f;
@@ -161,7 +179,7 @@ void Scene::render(){
 
 
 	for ( Ship& s : ships){
-		s.renderPlaceHolder(); // including its bullets
+		s.render(); // including its bullets
 	}
 	glPopMatrix();
 }
@@ -202,9 +220,8 @@ void rendering(){
 
 /* metodo globale che inizializza il sistema grafico */
 void initRendering(){
-	//aMesh.buildTorus(10,30,5.0,15.0);
-	aMesh.import("C:/corsi/game_engines_2016/kamikazeLab2016/assets/dark_fighter_6.obj");
 	glewInit();
+
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 }

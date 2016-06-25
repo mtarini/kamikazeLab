@@ -3,18 +3,22 @@
 
 #include "transform.h"
 #include "collider.h"
+#include "mesh.h"
 
 class PhysObject{
 public:
 	Transform t;
+
+	// components
 	Collider coll;
+	MeshComponent meshComponent;
 
 	vec3 vel;
 	quat angVel;
 
 	float mass;
 
-	void renderPlaceHolder() const;
+	void render() const;
 	void doPhysStep();
 
 	float drag;

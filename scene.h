@@ -31,6 +31,7 @@ struct Ship: public PhysObject{
 	void doPhysStep();
 
 	void renderPlaceHolder() const;
+	void render() const;
 
 	void setMaxVelAndAcc( float maxVel, float acc );
 	std::vector< Bullet > bullets;

@@ -3,13 +3,31 @@
 #include <string>
 
 #include"mesh.h"
+#include"scene.h"
 
-void Mesh::addQuad(int i, int j, int k, int h){
+void preloadAllAssets(){
+
+	// load meshes
+	//aMesh.buildTorus(10,30,5.0,15.0);
+	CpuMesh tmp;
+	tmp.import("C:/corsi/game_engines_2016/kamikazeLab2016/assets/dark_fighter_6.obj");
+
+	MeshComponent comp;
+
+	comp.mesh = tmp.uploadToGPU();
+	comp.t.setIde();
+
+	scene.ships[0].meshComponent = comp;
+	scene.ships[1].meshComponent = comp;
+
+}
+
+void CpuMesh::addQuad(int i, int j, int k, int h){
 	tris.push_back( Tri(i,j,k) );
 	tris.push_back( Tri(k,h,i) );
 }
 
-void Mesh::buildTorus(int ni, int nj, float innerRadius, float outerRadius){
+void CpuMesh::buildTorus(int ni, int nj, float innerRadius, float outerRadius){
 
 	verts.reserve( ni*nj );
 	tris.reserve( ni*nj*2 );
@@ -19,16 +37,16 @@ void Mesh::buildTorus(int ni, int nj, float innerRadius, float outerRadius){
 
 		// construct geometry
 		double alpha = 2*3.1415 * i / ni;
-		float x = cos(alpha) * innerRadius;
-		float y = sin(alpha) * innerRadius;
+		float x = (float)cos(alpha) * innerRadius;
+		float y = (float)sin(alpha) * innerRadius;
 		x += outerRadius;
 
 		double beta = 2*3.1415 * j / nj;
 
 		Vertex v;
-		v.pos.x = cos(beta) * x;
+		v.pos.x = (float)cos(beta) * x;
 		v.pos.y = y;
-		v.pos.z = sin(beta) * x;
+		v.pos.z = (float)sin(beta) * x;
 
 		verts.push_back( v );
 
@@ -41,7 +59,7 @@ void Mesh::buildTorus(int ni, int nj, float innerRadius, float outerRadius){
 
 }
 
-bool Mesh::import(const std::string& filename){
+bool CpuMesh::import(const std::string& filename){
 	std::ifstream infile(filename);
 	if (!infile.is_open()) return false;
 	std::string line;
@@ -66,11 +84,11 @@ bool Mesh::import(const std::string& filename){
 		} else if (code=="vt") {
 			float x,y;
 			iss >> x >> y;
-			Vertex v;
-			v.uv = vec2(x,y);
-			// v.pos e v.norm ci penso dopo
+			Vertex nv;
+			nv.uv = vec2(x,y);
+			verts.push_back( nv );
+			// v.pos e v.norm: ci penso dopo, quando leggero' le facce
 		} else if (code=="f") {
-			int i,j,k;
 			std::string st_i, st_j, st_k;
 			iss >> st_i >> st_j >> st_k;
 			int i0,i1,i2;
@@ -79,6 +97,21 @@ bool Mesh::import(const std::string& filename){
 			sscanf( st_i.c_str() , "%d/%d/%d" , &i0,&i1,&i2 );
 			sscanf( st_j.c_str() , "%d/%d/%d" , &j0,&j1,&j2 );
 			sscanf( st_k.c_str() , "%d/%d/%d" , &k0,&k1,&k2 );
+
+			//  Obj indices start from 1 not 0!
+			i0--;j0--;k0--;
+			i1--;j1--;k1--;
+			i2--;j2--;k2--;
+
+			Tri nt( i1, j1, k1 );
+			tris.push_back( nt );
+
+			verts[ i1 ].pos = tmpV[ i0 ];
+			verts[ i1 ].norm = tmpN[ i2 ];
+			verts[ j1 ].pos = tmpV[ j0 ];
+			verts[ j1 ].norm = tmpN[ j2 ];
+			verts[ k1 ].pos = tmpV[ k0 ];
+			verts[ k1 ].norm = tmpN[ k2 ];
 
 		}
 

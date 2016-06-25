@@ -18,6 +18,7 @@ AiMind aiP1;
 
 void rendering();
 void initRendering();
+void preloadAllAssets();
 
 #define SDL_TIMEREVENT SDL_USEREVENT
 
@@ -112,6 +113,8 @@ int main(int , char **)
 
 	glcontext = SDL_GL_CreateContext(win);
 	initRendering();
+
+	preloadAllAssets();
 
 	SDL_AddTimer( 1000/FPS, pushTimerEvent, NULL );
 
