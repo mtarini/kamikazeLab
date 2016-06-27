@@ -34,12 +34,12 @@ public:
 	void doPhysStep();
 
 	float drag;
+	float angDrag;
 
 	void reset(){
 		vel = vec3(0,0,0);
 		angVel = quat(1,0,0,0);
 		t.setIde();
-		drag = 0.03f;
 	}
 
 	void setCameraInside();

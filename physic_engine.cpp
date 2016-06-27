@@ -16,10 +16,10 @@ void PhysObject::doPhysStep(){
 	vel += acc * dt;*/
 
 	t.pos += vel * dt;
-	t.ori *= glm::slerp( quat(1,0,0,0) , angVel ,  dt );
+	t.ori *= glm::slerp( quat(1,0,0,0) , angVel ,  dt*10 );
 
 	// damping of angular velocity
-	angVel = glm::slerp( quat(1,0,0,0) , angVel , 0.80f );
+	angVel = glm::slerp( quat(1,0,0,0) , angVel , 1.0f - angDrag*dt );
 	// damping of linear velocity
 	vel *= 1.0-drag*dt; // an approximation : // (1-D)^dt = (1-D*dt)
 
@@ -74,38 +74,44 @@ void Bullet::doPhysStep(){
 
 void Ship::doPhysStep(){
 
-	/* PARTE VOLONTARIA: */
-	if (controller.status[ ShipController::LEFT ]){
-		angVel *= glm::angleAxis( glm::radians(+stats.turnRate)*dt,vec3(0,0,1));
-	}
-	if (controller.status[ ShipController::RIGHT ]){
-		angVel *= glm::angleAxis( glm::radians(-stats.turnRate)*dt,vec3(0,0,1));
-	}
-	if (controller.status[ ShipController::GO ]){
-		vel += t.forward() * (stats.accRate * dt);
-	}
-
-	if (timeBeforeFiringAgain<=0) {
-		if (controller.status[ ShipController::FIRE ]) {
-			spawnNewBullet();
-			timeBeforeFiringAgain += 1 / stats.fireRate ;
+	if (alive) {
+		/* PARTE VOLONTARIA: */
+		if (controller.status[ ShipController::LEFT ]){
+			angVel *= glm::angleAxis( glm::radians(+stats.turnRate)*dt,vec3(0,0,1));
 		}
-	} else timeBeforeFiringAgain -= dt;
+		if (controller.status[ ShipController::RIGHT ]){
+			angVel *= glm::angleAxis( glm::radians(-stats.turnRate)*dt,vec3(0,0,1));
+		}
+		if (controller.status[ ShipController::GO ]){
+			vel += t.forward() * (stats.accRate * dt);
+		}
 
-	// graphics: make it do a roll according to angular velocity
-	float rollAngle = glm::angle(angVel) *
-			sign(dot(glm::axis(angVel),vec3(0,0,1)))
-			* 0.13f
-			* (length(vel)*0.055f+1.0f);
-	meshComponent.t.ori =
-			glm::angleAxis( rollAngle, vec3(0,-1,0) ) *
-			quat( -sqrt(2.0f)/2.0f,0,0,sqrt(2.0f)/2 )  ;
+		if (timeBeforeFiringAgain<=0) {
+			if (controller.status[ ShipController::FIRE ]) {
+				spawnNewBullet();
+				timeBeforeFiringAgain += 1 / stats.fireRate ;
+			}
+		} else timeBeforeFiringAgain -= dt;
+
+		// graphics: make it do a roll according to angular velocity
+		float rollAngle = glm::angle(angVel) *
+				sign(dot(glm::axis(angVel),vec3(0,0,1)))
+				* 1.3f
+				* (length(vel)*0.055f+1.0f);
+		meshComponent.t.ori =
+				glm::angleAxis( rollAngle, vec3(0,-1,0) ) *
+				quat( -sqrt(2.0f)/2.0f,0,0,sqrt(2.0f)/2 )  ;
+	}
+	else {
+		timeDead+=dt;
+		if (timeDead>1.0) respawn();
+	}
 
 	/* PARTE PASSIVA */
 	PhysObject::doPhysStep();
 
-	//if (!scene.isInside( t.pos )) vel *= 0;
-	t.pos = scene.pacmanWarp( t.pos );
+	if (!scene.isInside( t.pos )) vel *= -0.8;
+	//t.pos = scene.pacmanWarp( t.pos );
 
 	/* BULLETS */
 	for (Bullet& b: bullets) b.doPhysStep();

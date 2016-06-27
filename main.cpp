@@ -143,8 +143,8 @@ int main(int , char **)
 	else {
 		aiP1.me = &(scene.ships[1]);
 		aiP1.target = &(scene.ships[0]);
-		//aiP1.setTerminator();
-		aiP1.setHumanLike();
+		aiP1.setTerminator();
+		//aiP1.setHumanLike();
 	}
 
 	/* ciclo degli eventi */

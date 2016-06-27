@@ -31,16 +31,36 @@ vec3 randomFlatUnitVec(){
 				);
 }
 
+vec3 randomUnitVec(){
+	vec3 res(
+				randInMinusOneToOne(),
+				randInMinusOneToOne(),
+				randInMinusOneToOne()
+				);
+	glm::normalize(res); return res;
+}
+
 void Ship::reset(){
 	timeBeforeFiringAgain = 0.0; // ready!
 	PhysObject::reset();
 	for (Bullet &b : bullets) b.reset();
 
 	t.pos = scene.randomPosInArena();
+	angDrag =0.2f/(1.0f/30);
+	alive = true;
+}
+
+void Ship::respawn(){
+	reset();
 }
 
 void Ship::die(){
-	t.pos = scene.randomPosInArena();
+	if (!alive) return;
+	alive = false;
+	timeDead = 0;
+	angVel = glm::angleAxis( (rand()%200+100)/400.0f, randomUnitVec());
+	glm::normalize(angVel);
+	angDrag = 0.0;
 }
 
 vec3 Scene::randomPosInArena() const{
@@ -116,7 +136,7 @@ void Scene::initAsNewGame(){
  */
 
 void Ship::setStatsAsFighter(){
-	stats.turnRate = 1040; // deg / s^2
+	stats.turnRate = 104; // deg / s^2
 	setMaxVelAndAcc( 30.0f, 60.0f ); // m/s, m/s^2
 	stats.fireRate = 8;  // shots per sec
 	stats.fireRange = 12.0; // m
@@ -124,7 +144,7 @@ void Ship::setStatsAsFighter(){
 }
 
 void Ship::setStatsAsTank(){
-	stats.turnRate = 730; // deg / s^2
+	stats.turnRate = 73; // deg / s^2
 	setMaxVelAndAcc( 50.0f, 10.0f ); // m/s, m/s^2
 	stats.fireRate = 1.3;  // shots per sec
 	stats.fireRange = 52.0; // m

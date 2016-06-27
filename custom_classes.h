@@ -58,9 +58,12 @@ struct Ship: public PhysObject{
 
 	void reset();
 	void die();
+	void respawn();
 
 	void setStatsAsFighter(); //
 	void setStatsAsTank();
+	bool alive;
+	double timeDead;
 };
 
 struct Scene{
